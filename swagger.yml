@@ -1,0 +1,1087 @@
+swagger: '2.0'
+info:
+  description: Memex is simple knowladge management system
+  version: 1.0.0
+  title: Memex Spaces API
+  termsOfService: https://memex.co/terms/
+  contact:
+    email: hello@memex.co
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+#host: mmx-spaces-api-stage.herokuapp.com
+schemes:
+  - https
+paths:
+  /healthcheck:
+    get:
+      tags:
+        - utils
+      summary: Checks health of service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Service is healthy
+
+  #################################
+  ## APPS
+  #################################
+  /apps:
+    get:
+      tags:
+      - apps
+      summary: Return all users apps
+      security:
+      - app_token: []
+      - user_token: []
+      produces:
+      - application/json
+      responses:
+        200:
+          description: List off apps
+          schema:
+            $ref: '#/definitions/AppsResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      tags:
+      - apps
+      summary: Creates new app
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: App object
+        required: true
+        schema:
+          $ref: '#/definitions/AppRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Created app
+          schema:
+            $ref: '#/definitions/AppResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /apps/{id}:
+    get:
+      tags:
+      - apps
+      summary: Return app with specified id
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: ID of app
+        required: true
+        type: integer
+        format: int64
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Retrieved app
+          schema:
+            $ref: '#/definitions/AppResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      tags:
+      - apps
+      summary: Updates app with specified id
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: ID of app
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: body
+        description: App object
+        required: true
+        schema:
+          $ref: '#/definitions/AppRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Updated app
+          schema:
+            $ref: '#/definitions/AppResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /apps/{id}/renew-token:
+    post:
+      tags:
+      - apps
+      summary: Renews app token
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: ID of app
+        required: true
+        type: integer
+        format: int64
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Updated app
+          schema:
+            $ref: '#/definitions/AppResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+
+  #################################
+  ## USER
+  #################################
+
+  /users/{id}:
+    get:
+      tags:
+      - users
+      summary: Get user info
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: User ID
+        required: true
+        type: integer
+        format: int64
+      produces:
+      - application/json
+      responses:
+        200:
+          description: User object
+          schema:
+            $ref: '#/definitions/UserResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /users:
+    post:
+      tags:
+      - users
+      summary: Create new user
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: User object
+        required: true
+        schema:
+          $ref: '#/definitions/UserRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: User object
+          schema:
+            $ref: '#/definitions/UserResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /users/self:
+    post:
+      tags:
+      - users
+      summary: Updates self user
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: User object
+        required: true
+        schema:
+          $ref: '#/definitions/UserRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: User object
+          schema:
+            $ref: '#/definitions/UserResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /users/self/change-password:
+    post:
+      tags:
+      - users
+      summary: Change myself password
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: User object
+        required: true
+        schema:
+          $ref: '#/definitions/PasswordChangeRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: User object
+          schema:
+            type: object
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /users/request-token:
+    post:
+      tags:
+      - users
+      summary: Returns user token (X-User-Token header)
+      security:
+      - app_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: User object
+        required: true
+        schema:
+          $ref: '#/definitions/UserTokenRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: User object
+          schema:
+            $ref: '#/definitions/UserTokenResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /users/self/backup:
+    get:
+      tags:
+        - users
+      summary: Requests user backup
+      security:
+        - app_token: []
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User object
+          required: true
+          schema:
+            $ref: '#/definitions/UserTokenRequest'
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success
+          schema:
+            type: object
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  #################################
+  ## MEDIA
+  #################################
+
+  /media:
+    get:
+      tags:
+      - media
+      summary: Get all users media
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: last_model_version
+        in: query
+        description: Clients last model version (diff updates)
+        type: integer
+        format: int64
+      - name: limit
+        in: query
+        description: Max number of items in response
+        type: integer
+        format: int64
+      - name: offset
+        in: query
+        description: Offset in results recordset
+        type: integer
+        format: int64
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Media objects
+          schema:
+            $ref: '#/definitions/MediaFetchResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      tags:
+      - media
+      summary: Create new media
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Media object
+        required: true
+        schema:
+          $ref: '#/definitions/MediaRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Media object
+          schema:
+            $ref: '#/definitions/MediaResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /media/multiple:
+    post:
+      tags:
+      - media
+      summary: Create multiple media
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Media object
+        required: true
+        schema:
+          $ref: '#/definitions/MediaMultipleRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Multiple updates metadata
+          schema:
+            $ref: '#/definitions/MultipleResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /media/{muid}:
+    get:
+      tags:
+      - media
+      summary: Get media
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: muid
+        in: path
+        description: Media MUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Media object
+          schema:
+            $ref: '#/definitions/MediaResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /media/{muid}/mark-as-uploaded:
+    post:
+      tags:
+      - media
+      summary: Mark media as uploaded
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: muid
+        in: path
+        description: Media MUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Media object
+          schema:
+            $ref: '#/definitions/MediaResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+
+  #################################
+  ## Links
+  #################################
+
+  /links:
+    get:
+      tags:
+      - links
+      summary: Get all users links
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: last_model_version
+        in: query
+        description: Clients last model version (diff updates)
+        type: integer
+        format: int64
+      - name: limit
+        in: query
+        description: Max number of items in response
+        type: integer
+        format: int64
+      - name: offset
+        in: query
+        description: Offset in results recordset
+        type: integer
+        format: int64
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Links objects
+          schema:
+            $ref: '#/definitions/LinksFetchResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      tags:
+      - links
+      summary: Create new link
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Link object
+        required: true
+        schema:
+          $ref: '#/definitions/LinkRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Link object
+          schema:
+            $ref: '#/definitions/MediaResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /links/multiple:
+    post:
+      tags:
+      - links
+      summary: Create multiple links
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Multiple links object
+        required: true
+        schema:
+          $ref: '#/definitions/LinksMultipleRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Multiple updates metadata
+          schema:
+            $ref: '#/definitions/MultipleResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+
+  #################################
+  ## SPACES
+  #################################
+
+  /spaces:
+    get:
+      tags:
+      - spaces
+      summary: Get all users spaces
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: last_model_version
+        in: query
+        description: Clients last model version (diff updates)
+        type: integer
+        format: int64
+      - name: limit
+        in: query
+        description: Max number of items in response
+        type: integer
+        format: int64
+      - name: offset
+        in: query
+        description: Offset in results recordset
+        type: integer
+        format: int64
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Spaces objects
+          schema:
+            $ref: '#/definitions/SpacesFetchResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      tags:
+      - spaces
+      summary: Create new space
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Space object
+        required: true
+        schema:
+          $ref: '#/definitions/SpaceRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Space object
+          schema:
+            $ref: '#/definitions/SpaceResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /spaces/multiple:
+    post:
+      tags:
+      - spaces
+      summary: Create multiple spaces
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Metadata object
+        required: true
+        schema:
+          $ref: '#/definitions/SpacesMultipleRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Multiple updates metadata
+          schema:
+            $ref: '#/definitions/MultipleResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /spaces/{muid}:
+    get:
+      tags:
+      - spaces
+      summary: Get space
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: muid
+        in: path
+        description: Space MUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Space object
+          schema:
+            $ref: '#/definitions/SpaceResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /spaces/log-visits:
+    post:
+      tags:
+      - spaces
+      summary: Log space visits
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        description: Media MUID
+        required: true
+        schema:
+          $ref: '#/definitions/SpaceVisitsRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Success
+          schema:
+            type: object
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+
+securityDefinitions:
+  user_token:
+    type: apiKey
+    name: X-USER-TOKEN
+    in: header
+  app_token:
+    type: apiKey
+    name: X-APP-TOKEN
+    in: header
+definitions:
+  AppState:
+    type: integer
+    format: int32
+    enum:
+      - 0 # new
+      - 1 # requested
+      - 2 # approved
+      - 3 # rejected
+      - 4 # blocked
+  AppPlatform:
+    type: integer
+    format: int32
+    enum:
+      - 0 # rest
+      - 1 # swift
+      - 2 # javaScript
+      - 3 # golang
+  EntityState:
+    type: integer
+    format: int32
+    enum:
+      - -1 # unknown
+      - 0 # visible
+      - 1 # deleted
+  MediaDataState:
+    type: integer
+    format: int32
+    enum:
+      - -1 # unknown
+      - 0 # waitingForNewUploadURL
+      - 1 # readyForDataUpload
+      - 2 # dataValid
+  MediaType:
+    type: string
+    enum:
+     - reference # reference
+     - source # source
+     - preview # preview
+     - summary # summary
+  SpaceType:
+    type: string
+    enum:
+     - com.memex.origin # origin
+     - com.memex.media.webpage # webPage
+     - com.memex.media.text # text
+     - com.memex.media.image # image
+     - com.memex.media.collection # collection
+  App:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      webpage:
+        type: string
+      token:
+        type: string
+      state:
+        $ref: '#/definitions/AppState'
+      platform:
+        $ref: '#/definitions/AppPlatform'
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      fullname:
+        type: string
+      email:
+        type: string
+      advanced:
+        type: boolean
+      has_password:
+        type: boolean
+      avatar:
+        $ref: '#/definitions/Media'
+      origin_space_muid:
+        type: string
+  Link:
+    type: object
+    properties:
+      muid:
+        type: string
+      state:
+        $ref: '#/definitions/EntityState'
+      order:
+        type: integer
+        format: int64
+      origin:
+        $ref: '#/definitions/Space'
+      target:
+        $ref: '#/definitions/Space'
+  Media:
+    type: object
+    properties:
+      muid:
+        type: string
+      state:
+        $ref: '#/definitions/EntityState'
+      mediaType:
+        $ref: '#/definitions/MediaType'
+      embedData:
+        type: string
+        format: byte
+      dataDownloadURL:
+        type: string
+      dataState:
+        $ref: '#/definitions/MediaDataState'
+  Space:
+    type: object
+    properties:
+      muid:
+        type: string
+      state:
+        $ref: '#/definitions/EntityState'
+      tagLabel:
+        type: string
+      tagColor:
+        type: string
+      spaceType:
+        $ref: '#/definitions/SpaceType'
+      representations:
+        type: array
+        items:
+          $ref: '#/definitions/Media'
+      unread:
+        type: boolean
+  AppRequest:
+    type: object
+    properties:
+      app:
+        $ref: '#/definitions/App'
+  AppResponse:
+    type: object
+    properties:
+      app:
+        $ref: '#/definitions/App'
+  UserResponse:
+    type: object
+    properties:
+      user:
+        $ref: '#/definitions/User'
+  UserRequest:
+    type: object
+    properties:
+      user:
+        $ref: '#/definitions/User'
+  PasswordChangeRequest:
+    type: object
+    properties:
+      old_password:
+        type: string
+      new_password:
+        type: string
+  UserTokenRequest:
+    type: object
+    properties:
+      identity:
+        $ref: '#/definitions/UserIdentity'
+      secret:
+        $ref: '#/definitions/UserSecrets'
+  UserIdentity:
+    type: object
+    properties:
+          email:
+            type: string
+  UserSecrets:
+    type: object
+    properties:
+      uuid:
+        type: string
+      password:
+        type: string
+  UserTokenResponse:
+    type: object
+    properties:
+      token:
+        type: string
+  AppsResponse:
+    type: object
+    properties:
+      apps:
+        type: array
+        items:
+          $ref: '#/definitions/App'
+  ErrorResponse:
+    type: object
+    properties:
+      error:
+        type: string
+
+  MediaRequest:
+    type: object
+    properties:
+      media:
+        $ref: '#/definitions/Media'
+  MediaResponse:
+    type: object
+    properties:
+      media:
+        $ref: '#/definitions/Media'
+  MediaMultipleRequest:
+    type: object
+    properties:
+      media:
+        type: array
+        items:
+          $ref: '#/definitions/Media'
+      remove_token:
+        type: string
+  MediaFetchResponse:
+    type: object
+    properties:
+      media:
+        type: array
+        items:
+          $ref: '#/definitions/Media'
+      model_version:
+        type: integer
+        format: int64
+      total:
+        type: integer
+        format: int64
+      has_more:
+        type: boolean
+      next_offset:
+        type: integer
+        format: int64
+
+  SpaceRequest:
+    type: object
+    properties:
+      space:
+        $ref: '#/definitions/Space'
+  SpaceResponse:
+    type: object
+    properties:
+      space:
+        $ref: '#/definitions/Space'
+  SpacesMultipleRequest:
+    type: object
+    properties:
+      spaces:
+        type: array
+        items:
+          $ref: '#/definitions/Space'
+      remove_token:
+        type: string
+  SpacesFetchResponse:
+    type: object
+    properties:
+      spaces:
+        type: array
+        items:
+          $ref: '#/definitions/Space'
+      model_version:
+        type: integer
+        format: int64
+      total:
+        type: integer
+        format: int64
+      has_more:
+        type: boolean
+      next_offset:
+        type: integer
+        format: int64
+  SpaceVisitsRequest:
+    type: object
+    properties:
+      spaces:
+        type: array
+        items:
+          type: object
+          properties:
+            muid:
+              type: string
+  LinkRequest:
+    type: object
+    properties:
+      media:
+        $ref: '#/definitions/Link'
+  LinksMultipleRequest:
+    type: object
+    properties:
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Link'
+      remove_token:
+        type: string
+  LinksFetchResponse:
+    type: object
+    properties:
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Link'
+      model_version:
+        type: integer
+        format: int64
+      total:
+        type: integer
+        format: int64
+      has_more:
+        type: boolean
+      next_offset:
+        type: integer
+        format: int64
+  MultipleResponse:
+    type: object
+    properties:
+      old_model_version:
+        type: integer
+        format: int64
+      model_version:
+        type: integer
+        format: int64
+
+externalDocs:
+  description: Find out more about memex
+  url: http://memex.co
