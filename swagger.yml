@@ -847,31 +847,60 @@ definitions:
     properties:
       muid:
         type: string
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      visited_at:
+        type: string
+        format: date-time
       state:
         $ref: '#/definitions/EntityState'
+      owner_id:
+        type: integer
+        format: int64
       order:
         type: integer
         format: int64
-      origin:
-        $ref: '#/definitions/Space'
-      target:
-        $ref: '#/definitions/Space'
+      origin_space_muid:
+        type: integer
+        format: int64
+      target_space_muid:
+        type: integer
+        format: int64
   Media:
     type: object
     properties:
       muid:
         type: string
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
       state:
         $ref: '#/definitions/EntityState'
-      mediaType:
+      metadata:
+        type: string
+      type:
         $ref: '#/definitions/MediaType'
-      embedData:
+      owner_id:
+        type: integer
+        format: int64
+      represented_space_muid:
+        type: string
+      data_state:
+        $ref: '#/definitions/MediaDataState'
+      embeded_data:
         type: string
         format: byte
-      dataDownloadURL:
+      data_download_url:
         type: string
-      dataState:
-        $ref: '#/definitions/MediaDataState'
+      data_upload_url:
+        type: string
   Space:
     type: object
     properties:
