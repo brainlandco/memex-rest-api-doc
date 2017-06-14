@@ -174,7 +174,7 @@ paths:
     get:
       tags:
       - users
-      summary: Get user info
+      summary: Get user info (pass 'self' instead of id if you want yourself)
       security:
       - app_token: []
       - user_token: []
@@ -212,10 +212,10 @@ paths:
       parameters:
       - in: body
         name: body
-        description: User object
+        description: User object and optional onboarding_token
         required: true
         schema:
-          $ref: '#/definitions/UserRequest'
+          $ref: '#/definitions/NewUserRequest'
       produces:
       - application/json
       responses:
@@ -319,13 +319,6 @@ paths:
         - app_token: []
       consumes:
         - application/json
-      parameters:
-        - in: body
-          name: body
-          description: User object
-          required: true
-          schema:
-            $ref: '#/definitions/UserTokenRequest'
       produces:
         - application/json
       responses:
@@ -358,14 +351,14 @@ paths:
         description: Clients last model version (diff updates)
         type: integer
         format: int64
-      - name: limit
-        in: query
-        description: Max number of items in response
-        type: integer
-        format: int64
       - name: offset
         in: query
         description: Offset in results recordset
+        type: integer
+        format: int64
+      - name: limit
+        in: query
+        description: Max number of items in response
         type: integer
         format: int64
       produces:
@@ -510,14 +503,14 @@ paths:
         description: Clients last model version (diff updates)
         type: integer
         format: int64
-      - name: limit
-        in: query
-        description: Max number of items in response
-        type: integer
-        format: int64
       - name: offset
         in: query
         description: Offset in results recordset
+        type: integer
+        format: int64
+      - name: limit
+        in: query
+        description: Max number of items in response
         type: integer
         format: int64
       produces:
@@ -553,7 +546,7 @@ paths:
         200:
           description: Link object
           schema:
-            $ref: '#/definitions/MediaResponse'
+            $ref: '#/definitions/LinkResponse'
         400:
           description: Something went wrong
           schema:
@@ -587,6 +580,33 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResponse'
 
+  /spaces/{muid}/links:
+    get:
+      tags:
+      - links
+      summary: Get space links
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: muid
+        in: path
+        description: Space MUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Space object
+          schema:
+            $ref: '#/definitions/SpaceLinksResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
 
   #################################
   ## SPACES
@@ -608,14 +628,14 @@ paths:
         description: Clients last model version (diff updates)
         type: integer
         format: int64
-      - name: limit
-        in: query
-        description: Max number of items in response
-        type: integer
-        format: int64
       - name: offset
         in: query
         description: Offset in results recordset
+        type: integer
+        format: int64
+      - name: limit
+        in: query
+        description: Max number of items in response
         type: integer
         format: int64
       produces:
@@ -739,7 +759,34 @@ paths:
           description: Something went wrong
           schema:
             $ref: '#/definitions/ErrorResponse'
-
+  /spaces/abstract:
+    post:
+      tags:
+      - spaces
+      summary: Gets abstraction for spaces (caption)
+      security:
+      - app_token: []
+      - user_token: []
+      consumes:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        description: Media MUID
+        required: true
+        schema:
+          $ref: '#/definitions/AbstractionRequest'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Abstraction object
+          schema:
+            $ref: '#/definitions/AbstractionResponse'
+        400:
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/ErrorResponse'
 
 securityDefinitions:
   user_token:
@@ -760,6 +807,12 @@ definitions:
       - 2 # approved
       - 3 # rejected
       - 4 # blocked
+  ProcessingMode:
+    type: string
+    enum:
+      - no # no processing is required
+      - async # processing will be performed asynchrounously after response is delivered
+      - sync # processing results will be included in response
   AppPlatform:
     type: integer
     format: int32
@@ -899,7 +952,7 @@ definitions:
       data_upload_url:
         type: string
       represented_space_muid:
-        type: string  
+        type: string
   Space:
     type: object
     properties:
@@ -946,6 +999,13 @@ definitions:
     properties:
       user:
         $ref: '#/definitions/User'
+  NewUserRequest:
+    type: object
+    properties:
+      user:
+        $ref: '#/definitions/User'
+      onboarding_token:
+        type: string
   UserRequest:
     type: object
     properties:
@@ -968,14 +1028,14 @@ definitions:
   UserIdentity:
     type: object
     properties:
-          email:
-            type: string
+      email:
+        type: string
   UserSecrets:
     type: object
     properties:
-      uuid:
-        type: string
       password:
+        type: string
+      onboarding_token:
         type: string
   UserTokenResponse:
     type: object
@@ -1038,11 +1098,22 @@ definitions:
     properties:
       space:
         $ref: '#/definitions/Space'
+      process:
+        $ref: '#/definitions/ProcessingMode'
+      autodump:
+        type: boolean
   SpaceResponse:
     type: object
     properties:
       space:
         $ref: '#/definitions/Space'
+  SpaceLinksResponse:
+    type: object
+    properties:
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Link'
   SpacesMultipleRequest:
     type: object
     properties:
@@ -1080,7 +1151,15 @@ definitions:
           properties:
             muid:
               type: string
+            visited_at:
+              type: string
+              format: date-time
   LinkRequest:
+    type: object
+    properties:
+      media:
+        $ref: '#/definitions/Link'
+  LinkResponse:
     type: object
     properties:
       media:
@@ -1121,6 +1200,20 @@ definitions:
       model_version:
         type: integer
         format: int64
+
+  AbstractionRequest:
+    type: object
+    properties:
+      space_MUIDs:
+        type: array
+        items:
+          type: string
+
+  AbstractionResponse:
+    type: object
+    properties:
+      caption:
+        type: string
 
 externalDocs:
   description: Find out more about memex
