@@ -834,14 +834,16 @@ definitions:
         type: string
       email:
         type: string
-      advanced:
-        type: boolean
-      has_password:
-        type: boolean
+      password:
+        type: string
       avatar:
         $ref: '#/definitions/Media'
       origin_space_muid:
         type: string
+      advanced:
+        type: boolean
+      has_password:
+        type: boolean
   Link:
     type: object
     properties:
@@ -851,9 +853,6 @@ definitions:
         type: string
         format: date-time
       updated_at:
-        type: string
-        format: date-time
-      visited_at:
         type: string
         format: date-time
       state:
@@ -906,14 +905,26 @@ definitions:
     properties:
       muid:
         type: string
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      visited_at:
+        type: string
+        format: date-time
       state:
         $ref: '#/definitions/EntityState'
-      tagLabel:
-        type: string
-      tagColor:
-        type: string
-      spaceType:
+      owner_id:
+        type: integer
+        format: int64
+      type_identifier:
         $ref: '#/definitions/SpaceType'
+      tag_label:
+        type: string
+      tag_color:
+        type: string
       representations:
         type: array
         items:
