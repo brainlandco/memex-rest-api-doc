@@ -882,15 +882,13 @@ definitions:
         format: date-time
       state:
         $ref: '#/definitions/EntityState'
+      owner_id:
+        type: integer
+        format: int64
       metadata:
         type: string
       type:
         $ref: '#/definitions/MediaType'
-      owner_id:
-        type: integer
-        format: int64
-      represented_space_muid:
-        type: string
       data_state:
         $ref: '#/definitions/MediaDataState'
       embeded_data:
@@ -900,6 +898,8 @@ definitions:
         type: string
       data_upload_url:
         type: string
+      represented_space_muid:
+        type: string  
   Space:
     type: object
     properties:
